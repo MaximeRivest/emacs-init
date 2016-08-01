@@ -1,0 +1,80 @@
+;; .emacs
+
+
+;; Added by Package.el.  This must come before configurations of installed
+;; packages.  Don't delete this line.  If you don't want it, just comment it out
+;; by adding a semicolon to the start of the line.  You may delete these
+;; explanatory comments.
+(package-initialize)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["black" "red3" "ForestGreen" "yellow3" "blue" "magenta3" "DeepSkyBlue" "gray50"])
+ '(custom-enabled-themes (quote (light-blue)))
+ '(diff-switches "-u")
+ '(package-selected-packages
+   (quote
+    (magit fill-column-indicator auto-complete-auctex ess ess-R-object-popup ess-smart-equals ess-view))))
+
+;;; uncomment for CJK utf-8 support for non-Asian users
+;; (require 'un-define)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (add-to-list
+   'package-archives
+   '("melpa" . "http://melpa.org/packages/")
+   t)
+  (package-initialize))
+  
+(org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+     (org . t)
+     (ditaa . t)
+     (latex . t)))
+(setq org-babel-R-command "C:/Progra~1/R/R-3.3.0/bin/x64/R --slave --no-save")
+
+;; Graphically indicate fill-column
+(require 'fill-column-indicator)
+
+;; width and color
+(setq fci-rule-width 1)
+(setq fci-rule-color "darkblue")
+
+;; Define when fci should activate itself
+   (define-globalized-minor-mode global-fci-mode fci-mode
+     (lambda ()
+       (if (and
+            (not (string-match "^\*.*\*$" (buffer-name)))
+            (not (eq major-mode 'dired-mode)))
+          (fci-mode 1))))
+ (global-fci-mode 1)
+
+;; Define automatic activation of 80 column fill
+
+(setq-default fill-column 80)
+
+;; To activate auto-fill in all text mode
+   (setq-default auto-fill-function 'do-auto-fill)
+
+;; Activate Shift move windows
+(windmove-default-keybindings)
+
+;; Show matching parenthesis
+(show-paren-mode 1)
+
+;; Set font size
+(set-face-attribute 'default nil :height 100)
