@@ -1,10 +1,10 @@
 ;; .emacs
 
 
-;; Added by Package.el.  This must come before configurations of installed
-;; packages.  Don't delete this line.  If you don't want it, just comment it out
-;; by adding a semicolon to the start of the line.  You may delete these
-;; explanatory comments.
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
 (package-initialize)
 
 (custom-set-variables
@@ -15,12 +15,26 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
-   ["black" "red3" "ForestGreen" "yellow3" "blue" "magenta3" "DeepSkyBlue" "gray50"])
+   ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
  '(custom-enabled-themes (quote (light-blue)))
  '(diff-switches "-u")
+ '(ess-R-font-lock-keywords
+   (quote
+    ((ess-R-fl-keyword:modifiers . t)
+     (ess-R-fl-keyword:fun-defs . t)
+     (ess-R-fl-keyword:keywords . t)
+     (ess-R-fl-keyword:assign-ops . t)
+     (ess-R-fl-keyword:constants . t)
+     (ess-fl-keyword:fun-calls . t)
+     (ess-fl-keyword:numbers)
+     (ess-fl-keyword:operators)
+     (ess-fl-keyword:delimiters . t)
+     (ess-fl-keyword:=)
+     (ess-R-fl-keyword:F&T . t)
+     (ess-R-fl-keyword:%op%))))
  '(package-selected-packages
    (quote
-    (magit fill-column-indicator auto-complete-auctex ess ess-R-object-popup ess-smart-equals ess-view))))
+    (magit tabbar markdown-mode polymode auctex bibretrieve ess-R-data-view auto-complete-auctex ess ess-R-object-popup ess-smart-equals ess-view))))
 
 ;;; uncomment for CJK utf-8 support for non-Asian users
 ;; (require 'un-define)
@@ -42,10 +56,13 @@
 (org-babel-do-load-languages
    'org-babel-load-languages
    '((R . t)
+     (python . t)
      (org . t)
      (ditaa . t)
      (latex . t)))
-(setq org-babel-R-command "C:/Progra~1/R/R-3.3.0/bin/x64/R --slave --no-save")
+(setq-default fill-column 80)
+
+(require 'git)
 
 ;; Graphically indicate fill-column
 (require 'fill-column-indicator)
@@ -78,3 +95,87 @@
 
 ;; Set font size
 (set-face-attribute 'default nil :height 100)
+
+;; fontify code in code blocks
+(setq org-src-fontify-natively t)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Latex for Emacs
+;; 
+;; Dependencies: okular, texlive-full, auctex
+;;
+;; Okular setup: 
+;; 1.) Open Okular and go to...
+;; 2.) Settings -> Configure Okular -> Editor
+;; 3.) Set Editor to "Emacs client"
+;; 4.) Command should automatically set to: 
+;; emacsclient -a emacs --no-wait +%l %f
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; only start server for okular comms when in latex mode
+(add-hook 'LaTeX-mode-hook 'server-start)
+(setq TeX-PDF-mode t) ;; use pdflatex instead of latex
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Standard emacs/latex config
+;; http://emacswiki.org/emacs/AUCTeX
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+
+(add-hook 'LaTeX-mode-hook 'visual-line-mode)
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+
+; enable auto-fill mode, nice for text
+(add-hook 'LaTeX-mode-hook 'auto-fill-mode)
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+(setq reftex-plug-into-AUCTeX t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Enable synctex correlation
+(setq TeX-source-correlate-method 'synctex)
+;; Enable synctex generation. Even though the command shows
+;; as "latex" pdflatex is actually called
+(custom-set-variables '(LaTeX-command "latex -synctex=1") )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Use Okular as the pdf viewer. Build okular 
+;; command, so that Okular jumps to the current line 
+;; in the viewer.
+(setq TeX-view-program-selection
+ '((output-pdf "PDF Viewer")))
+(setq TeX-view-program-list
+ '(("PDF Viewer" "okular --unique %o#src:%n%b")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Default source block generateur
+;; (defun org-insert-source-block (name language switches header)
+;;   "Asks name, language, switches, header.
+;; Inserts org-mode source code snippet"
+;;   (interactive "sname? 
+;; slanguage? 
+;; sswitches? 
+;; sheader? ")
+;;   (insert 
+;;    (if (string= name "")
+;;        ""
+;;      (concat "#+NAME: " name) )
+;;    (format "
+;; #+BEGIN_SRC %s %s %s
+
+;; #+END_SRC" language switches header
+;; )
+;;    )
+;;   (forward-line -1)
+;;   (goto-char (line-end-position))
+;;   )
+
+
+(add-to-list 'org-structure-template-alist
+             '("s" "#+NAME: ?\n#+BEGIN_SRC \n\n#+END_SRC"))
